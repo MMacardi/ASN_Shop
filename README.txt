@@ -12,3 +12,4 @@ python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 than you can go to http://127.0.0.1:8000/admin/ and see database 
+
