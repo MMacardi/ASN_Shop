@@ -1,0 +1,51 @@
+{% extends 'asn_shop/base.html' %}
+
+{% block title %}{{ car.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <h1 class="mb-3">{{ car.title }}</h1>
+            <p><strong>Описание:</strong> {{ car.description }}</p>
+            <p><strong>Цена:</strong> {{ car.price }} ₽</p>
+            <p><strong>Категория:</strong> {{ car.category.name }}</p>
+            <p><strong>Продавец:</strong> {{ car.seller.username }} ({{ car.seller.email }})</p>
+            <p><strong>Дата добавления:</strong> {{ car.created_at }}</p>
+
+            {% if car.images.all %}
+                <div id="carouselExample" class="carousel slide mb-4" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in car.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ image.image.url }}" class="d-block w-100 rounded" style="max-height: 400px; object-fit: contain;" alt="{{ car.title }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Предыдущая</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Следующая</span>
+                    </button>
+                </div>
+            {% else %}
+                <p>Нет изображений для этого автомобиля.</p>
+            {% endif %}
+
+            {% if user == car.seller %}
+                <div class="mb-3">
+                    <a href="{% url 'edit_car' car.id %}" class="btn btn-warning me-2">Редактировать</a>
+                    <a href="{% url 'delete_car' car.id %}" class="btn btn-danger">Удалить</a>
+                </div>
+            {% endif %}
+
+            <a href="{% url 'home' %}" class="btn btn-secondary">← Назад на главную</a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

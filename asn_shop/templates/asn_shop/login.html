@@ -1,0 +1,20 @@
+{% extends 'asn_shop/base.html' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Вход</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+
+    <p class="mt-3">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+</div>
+{% endblock %}
