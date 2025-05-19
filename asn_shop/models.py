@@ -61,7 +61,6 @@ class CarCategory(models.Model):
 class Manufacturer(models.Model):
     name = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
-    founded_year = models.IntegerField()
 
     def __str__(self):
         return self.name
@@ -74,6 +73,7 @@ class Car(models.Model):
     category = models.ForeignKey(CarCategory, on_delete=models.CASCADE)
     seller = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)  # Время создания
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

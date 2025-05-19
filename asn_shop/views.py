@@ -8,20 +8,19 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 
 
-
 def home_page(request):
-    cars = Car.objects.all()  # Получаем все автомобили
+    cars = Car.objects.all()  # Get all cars
     return render(request, 'asn_shop/home_page.html', {'cars': cars})
 
 def car_detail(request, car_id):
-    car = get_object_or_404(Car, id=car_id)  # Получаем автомобиль по ID
-    car_images = car.images.all()  # Получаем все изображения для этого автомобиля
+    car = get_object_or_404(Car, id=car_id)  # Get car by ID
+    car_images = car.images.all()  # Get all images for this car
     return render(request, 'asn_shop/car_detail.html', {'car': car, 'car_images': car_images})
 
 @login_required
 def add_car(request):
     if not request.user.is_seller:
-        return HttpResponseForbidden("Только продавцы могут добавлять авто.")
+        return HttpResponseForbidden("Only sellers can add cars.")
 
     if request.method == 'POST':
         car_form = CarForm(request.POST)
@@ -53,12 +52,12 @@ def edit_car(request, car_id):
         if car_form.is_valid():
             car_form.save()
 
-            # ✅ Удаление изображений
+            # Delete images
             delete_images_ids = request.POST.getlist('delete_images')
             if delete_images_ids:
                 CarImage.objects.filter(id__in=delete_images_ids, car=car).delete()
 
-            # ✅ Добавление новых изображений
+            # Add new images
             images = request.FILES.getlist('images')
             for image in images:
                 CarImage.objects.create(car=car, image=image)
@@ -78,15 +77,16 @@ def edit_car(request, car_id):
 def delete_car(request, car_id):
     car = get_object_or_404(Car, id=car_id)
     
-    # Проверка, является ли текущий пользователь продавцом и владельцем автомобиля
+    # Check if current user is seller and owner of the car
     if car.seller != request.user:
-        return HttpResponseForbidden("Вы не можете удалить этот автомобиль.")
+        return HttpResponseForbidden("You cannot delete this car.")
     
     if request.method == 'POST':
         car.delete()
         return redirect('home')
     
     return render(request, 'asn_shop/delete_car.html', {'car': car})
+
 from django.contrib import messages
 from django.contrib.auth import login, logout
 
@@ -96,33 +96,58 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f"Добро пожаловать, {user.username}! Вы успешно зарегистрировались.")
+            messages.success(request, f"Welcome, {user.username}! You have successfully registered.")
             return redirect('home')
         else:
-            messages.error(request, "Пожалуйста, исправьте ошибки в форме.")
+            messages.error(request, "Please correct the errors in the form.")
     else:
         form = MyUserRegistrationForm()
     return render(request, 'asn_shop/register.html', {'form': form})
 
 def user_logout(request):
     logout(request)
-    messages.info(request, "Вы вышли из аккаунта.")
+    messages.info(request, "You have logged out.")
     return redirect('home')
 
 def user_login(request):
     if request.user.is_authenticated:
-        return redirect('home')  # если уже залогинен
+        return redirect('home')  # already logged in
 
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            messages.success(request, f"Вы вошли как {user.email}")
+            messages.success(request, f"You are logged in as {user.email}.")
             return redirect('home')
         else:
-            messages.error(request, "Неверный email или пароль")
+            messages.error(request, "Invalid email or password.")
     else:
         form = AuthenticationForm()
 
     return render(request, 'asn_shop/login.html', {'form': form})
+
+from .forms import ReviewForm
+
+def car_detail(request, car_id):
+    car = Car.objects.get(id=car_id)
+    images = car.images.all()
+    reviews = car.review_set.all()
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        review_form = ReviewForm(request.POST)
+        if review_form.is_valid():
+            review = review_form.save(commit=False)
+            review.car = car
+            review.user = request.user
+            review.save()
+            return redirect('car_detail', car_id=car.id)
+    else:
+        review_form = ReviewForm()
+
+    return render(request, 'asn_shop/car_detail.html', {
+        'car': car,
+        'images': images,
+        'reviews': reviews,
+        'review_form': review_form,
+    })

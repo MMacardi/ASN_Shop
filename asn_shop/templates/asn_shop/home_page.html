@@ -1,32 +1,32 @@
 {% extends 'asn_shop/base.html' %}
 
-{% block title %}Главная - ASN Auto{% endblock %}
+{% block title %}Home - ASN Auto{% endblock %}
 
 {% block content %}
-<h2 class="mb-4 text-center">Все автомобили</h2>
+<h2 class="mb-4 text-center">All Cars</h2>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for car in cars %}
         <div class="col">
             <div class="card h-100 shadow-sm">
                 {% if car.images.first %}
-                    <img src="{{ car.images.first.image.url }}" class="card-img-top" style="object-fit: cover; height: 300px;" alt="Изображение авто">
+                    <img src="{{ car.images.first.image.url }}" class="card-img-top" style="object-fit: cover; height: 300px;" alt="Car image">
                 {% else %}
-                    <img src="https://via.placeholder.com/300x300?text=Нет+изображения" class="card-img-top" alt="Нет изображения">
+                    <img src="https://via.placeholder.com/300x300?text=No+Image" class="card-img-top" alt="No image available">
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ car.title }}</h5>
-                    <p class="card-text text-muted">Цена: {{ car.price }}₽</p>
+                    <p class="card-text text-muted">Price: {{ car.price }} RMB</p>
                     <p class="card-text small">
-                        Продавец: {{ car.seller.email }}<br>
-                        Дата добавления: {{ car.created_at|date:"d.m.Y H:i" }}
+                        Seller: {{ car.seller.email }}<br>
+                        Posted on: {{ car.created_at|date:"d.m.Y H:i" }}
                     </p>
-                    <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Подробнее</a>
+                    <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">View Details</a>
                 </div>
             </div>
         </div>
     {% empty %}
-        <p>Пока что нет доступных автомобилей.</p>
+        <p>No cars available at the moment.</p>
     {% endfor %}
 </div>
 {% endblock %}
